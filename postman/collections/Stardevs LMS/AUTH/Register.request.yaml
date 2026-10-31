@@ -1,0 +1,43 @@
+$kind: http-request
+description: ""
+url: http://127.0.0.1:8000/api/register
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: name
+      value: Bintang Al Fizar
+      description: ""
+      disabled: false
+    - type: text
+      key: nim
+      value: "22040700020"
+      description: ""
+      disabled: false
+    - type: text
+      key: email
+      value: bintangalfizar25@gmail.com
+      description: ""
+      disabled: false
+    - type: text
+      key: phone_number
+      value: "082111710709"
+      description: ""
+      disabled: false
+    - type: text
+      key: role
+      value: admin
+      description: ""
+      disabled: false
+    - type: text
+      key: password
+      value: password123
+      description: ""
+      disabled: false
+    - type: text
+      key: institution_code
+      value: praktikumftumj
+      description: ""
+      disabled: false
+order: 4000

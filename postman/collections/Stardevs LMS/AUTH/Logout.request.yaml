@@ -1,0 +1,12 @@
+$kind: http-request
+description: ""
+url: http://127.0.0.1:8000/api/logout
+method: POST
+body:
+  type: formdata
+  content: []
+auth:
+  type: bearer
+  credentials:
+    token: 3|1TumGpeA3eBfVX1qlMJJbEbL8VtggwbBDJK73ndF514f78b2
+order: 1000
