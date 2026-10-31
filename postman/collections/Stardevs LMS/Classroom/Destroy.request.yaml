@@ -1,7 +1,6 @@
 $kind: http-request
-name: Create
-url: http://127.0.0.1:8000/api/classrooms
-method: POST
+url: http://127.0.0.1:8000/api/classrooms/2
+method: DELETE
 body:
   type: formdata
   content:
@@ -34,4 +33,4 @@ auth:
   type: bearer
   credentials:
     token: 4|OeECGjduMxRrYH5QRd3DO2Ne7stoPbKnKswgdpJf7d49929c
-order: 1000
+order: 5000

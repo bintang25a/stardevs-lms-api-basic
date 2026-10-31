@@ -12,6 +12,7 @@ class Section extends Model
     'date',
     'title',
     'classroom_id',
+    'order',
   ];
 
   public function classroom(): BelongsTo

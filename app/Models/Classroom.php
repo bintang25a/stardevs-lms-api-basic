@@ -42,4 +42,9 @@ class Classroom extends Model
   {
     return $this->hasMany(Section::class);
   }
+
+  public function announcements(): HasMany
+  {
+    return $this->hasMany(Announcement::class);
+  }
 }

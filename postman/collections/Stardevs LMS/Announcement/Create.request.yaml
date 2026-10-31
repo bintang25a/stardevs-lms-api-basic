@@ -1,0 +1,36 @@
+$kind: http-request
+url: http://127.0.0.1:8000/api/announcements
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: title
+      value: Pertemuan 1
+      description: ""
+      disabled: false
+    - type: text
+      key: section_id
+      value: "1"
+      description: ""
+      disabled: false
+    - type: text
+      key: classroom_id
+      value: "1"
+      description: ""
+      disabled: false
+    - type: text
+      key: announcement
+      value: apa aja kita suarakan untuk rakyat
+      description: ""
+      disabled: false
+    - type: text
+      key: order
+      value: "3"
+      description: ""
+      disabled: false
+auth:
+  type: bearer
+  credentials:
+    token: 4|OeECGjduMxRrYH5QRd3DO2Ne7stoPbKnKswgdpJf7d49929c
+order: 2000

@@ -1,0 +1,36 @@
+$kind: http-request
+url: http://127.0.0.1:8000/api/announcements/1
+method: GET
+body:
+  type: formdata
+  content:
+    - type: text
+      key: name
+      value: Praktikum PBW
+      description: ""
+      disabled: false
+    - type: text
+      key: code
+      value: PBW-2026
+      description: ""
+      disabled: false
+    - type: text
+      key: description
+      value: Hai ini praktikum keren
+      description: ""
+      disabled: false
+    - type: text
+      key: schedule
+      value: 2026-10-10 10:10:10
+      description: ""
+      disabled: false
+    - type: text
+      key: assistant_ids[]
+      value: "1"
+      description: ""
+      disabled: false
+auth:
+  type: bearer
+  credentials:
+    token: 4|OeECGjduMxRrYH5QRd3DO2Ne7stoPbKnKswgdpJf7d49929c
+order: 4000

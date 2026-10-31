@@ -6,7 +6,7 @@ body:
   content:
     - type: text
       key: name
-      value: Praktikum PBW A1
+      value: Praktikum Pemrograman Berbasis Web
       description: ""
       disabled: false
     - type: text
@@ -33,4 +33,4 @@ auth:
   type: bearer
   credentials:
     token: 4|OeECGjduMxRrYH5QRd3DO2Ne7stoPbKnKswgdpJf7d49929c
-order: 2000
+order: 3000
