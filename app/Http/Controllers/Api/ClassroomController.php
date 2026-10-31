@@ -104,7 +104,7 @@ class ClassroomController extends Controller
    */
   public function show(string $id)
   {
-    $classroom = Classroom::with(['assistants:id,name'])
+    $classroom = Classroom::with(['assistants:id,name', 'sections', 'announcements'])
       ->withCount('assistants')
       ->withCount('students')
       ->find($id);
@@ -123,20 +123,41 @@ class ClassroomController extends Controller
       ];
     });
 
+    $sections = $classroom->sections->map(function ($section) {
+      return [
+        'id'    => $section->id,
+        'title' => $section->title,
+        'date'  => $section->date,
+        'order' => $section->order,
+      ];
+    });
+
+    $announcements = $classroom->announcements->map(function ($announcement) {
+      return [
+        'id'            => $announcement->id,
+        'title'         => $announcement->title,
+        'announcement'  => $announcement->announcement,
+        'section_id'    => $announcement->section_id,
+        'order'         => $announcement->order,
+      ];
+    });
+
     return response()->json([
       'success' => true,
       'message' => 'Classroom retrieved successfully',
       'data'    => [
-        'id'          => $classroom->id,
-        'name'        => $classroom->name,
-        'code'        => $classroom->code,
-        'description' => $classroom->description,
-        'schedule'    => $classroom->schedule,
-        'assistants'  => $assistants,
-        'total_assistants' => $classroom->assistants_count,
-        'total_students' => $classroom->students_count,
-        'created_at'  => $classroom->created_at,
-        'updated_at'  => $classroom->updated_at,
+        'id'                => $classroom->id,
+        'name'              => $classroom->name,
+        'code'              => $classroom->code,
+        'description'       => $classroom->description,
+        'schedule'          => $classroom->schedule,
+        'assistants'        => $assistants,
+        'sections'          => $sections,
+        'annoucements'      => $announcements,
+        'total_assistants'  => $classroom->assistants_count,
+        'total_students'    => $classroom->students_count,
+        'created_at'        => $classroom->created_at,
+        'updated_at'        => $classroom->updated_at,
       ]
     ], 200);
   }

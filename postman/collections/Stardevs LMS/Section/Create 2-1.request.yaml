@@ -1,0 +1,27 @@
+$kind: http-request
+name: Create 2
+url: http://127.0.0.1:8000/api/sections
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: title
+      value: Pertemuan 2
+      description: ""
+      disabled: false
+    - type: text
+      key: date
+      value: 2026-10-10 10:10:10
+      description: ""
+      disabled: false
+    - type: text
+      key: classroom_id
+      value: "1"
+      description: ""
+      disabled: false
+auth:
+  type: bearer
+  credentials:
+    token: 4|OeECGjduMxRrYH5QRd3DO2Ne7stoPbKnKswgdpJf7d49929c
+order: 2605

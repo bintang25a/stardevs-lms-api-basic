@@ -12,6 +12,7 @@ class Announcement extends Model
     'announcement',
     'classroom_id',
     'section_id',
+    'order',
   ];
 
   public function classroom(): BelongsTo

@@ -27,17 +27,19 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
   Route::middleware('role:admin')->group(function () {
     Route::apiResource('global-settings', GlobalSettingController::class);
     Route::apiResource('announcements', AnnouncementController::class)->only(['index']);
-    Route::apiResource('attachments', AttachmentController::class)->only(['index', 'destroy']);
+    Route::apiResource('attachments', AttachmentController::class)->only(['index',]);
   });
 
   Route::middleware('role:asisten')->group(function () {
     Route::apiResource('global-settings', GlobalSettingController::class);
     Route::apiResource('sections', SectionController::class)->only(['store', 'update', 'destroy']);
-    Route::apiResource('announcements', AnnouncementController::class)->only(['store', 'update', 'destroy']);
+    // Route::apiResource('announcements', AnnouncementController::class)->only(['store', 'update', 'destroy']);
   });
 
   Route::middleware('role:admin,asisten')->group(function () {
+    Route::apiResource('announcements', AnnouncementController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('classrooms', ClassroomController::class)->only(['store', 'update', 'destroy']);
+    Route::apiResource('attachments', AttachmentController::class)->only(['destroy']);
   });
 });
 

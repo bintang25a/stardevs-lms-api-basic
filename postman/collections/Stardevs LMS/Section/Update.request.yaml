@@ -1,0 +1,36 @@
+$kind: http-request
+url: http://127.0.0.1:8000/api/sections/2
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: title
+      value: Pertemuan 2 3
+      description: ""
+      disabled: false
+    - type: text
+      key: date
+      value: 2026-10-10 10:10:10
+      description: ""
+      disabled: false
+    - type: text
+      key: classroom_id
+      value: "1"
+      description: ""
+      disabled: false
+    - type: text
+      key: order
+      value: "2"
+      description: ""
+      disabled: false
+    - type: text
+      key: _method
+      value: PUT
+      description: ""
+      disabled: false
+auth:
+  type: bearer
+  credentials:
+    token: 4|OeECGjduMxRrYH5QRd3DO2Ne7stoPbKnKswgdpJf7d49929c
+order: 3000
