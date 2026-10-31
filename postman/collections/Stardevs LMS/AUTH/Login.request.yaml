@@ -1,0 +1,18 @@
+$kind: http-request
+description: ""
+url: http://127.0.0.1:8000/api/login
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: login
+      value: bintangalfizar25@gmail.com
+      description: ""
+      disabled: false
+    - type: text
+      key: password
+      value: password123
+      description: ""
+      disabled: false
+order: 2000
