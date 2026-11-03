@@ -1,0 +1,58 @@
+$kind: http-request
+name: Update
+url: http://127.0.0.1:8000/api/materials/2
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: title
+      value: Materi pertemuan 2
+      description: ""
+      disabled: false
+    - type: text
+      key: description
+      value: Pelajari materi tersebut
+      description: ""
+      disabled: false
+    - type: text
+      key: section_id
+      value: "1"
+      description: ""
+      disabled: false
+    - type: text
+      key: classroom_id
+      value: "1"
+      description: ""
+      disabled: false
+    - type: text
+      key: order
+      value: "3"
+      description: ""
+      disabled: false
+    - type: file
+      key: files[]
+      src:
+        - /C:/Users/binta/Downloads/PKM-0083-PKM-I-2026.pdf
+      description: ""
+      disabled: false
+    - type: text
+      key: files_remove_ids[]
+      value: "3"
+      description: ""
+      disabled: false
+    - type: text
+      key: files_remove_ids[]
+      value: "2"
+      description: ""
+      disabled: false
+    - type: text
+      key: _method
+      value: PUT
+      description: ""
+      disabled: false
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 1000

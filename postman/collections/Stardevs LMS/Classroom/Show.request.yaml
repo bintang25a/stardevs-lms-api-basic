@@ -32,5 +32,5 @@ body:
 auth:
   type: bearer
   credentials:
-    token: 4|OeECGjduMxRrYH5QRd3DO2Ne7stoPbKnKswgdpJf7d49929c
+    token: "{{token}}"
 order: 4000

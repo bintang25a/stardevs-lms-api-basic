@@ -18,7 +18,7 @@ return new class extends Migration
       $table->string('file_url')->nullable();
       $table->string('class_model');
       $table->string('class_id');
-      $table->enum('type', ['material', 'assignment', 'submission']);
+      $table->enum('type', ['material', 'assignment', 'answerkey', 'testcase', 'submission']);
       $table->timestamps();
     });
   }
