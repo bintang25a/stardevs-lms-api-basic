@@ -10,6 +10,7 @@
 /.idea
 /.nova
 /.phpunit.cache
+/.postman
 /.vscode
 /.zed
 /auth.json
