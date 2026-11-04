@@ -15,7 +15,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])->middleware(['signed']);
 
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group(function () {
 
   Route::get('/user', [AuthController::class, 'profile']);
   Route::post('/logout', [AuthController::class, 'logout']);
