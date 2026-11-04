@@ -36,12 +36,15 @@ class AssignmentController extends Controller
       'message' => 'Assignments retrieved successfully',
       'data'    => $assignments->through(function ($assignment) {
         return [
-          'id'            => $assignment->id,
-          'title'         => $assignment->title,
-          'description'   => $assignment->description,
-          'classroom_id'  => $assignment->classroom_id,
-          'created_at'    => $assignment->created_at,
-          'updated_at'    => $assignment->updated_at,
+          'id'              => $assignment->id,
+          'title'           => $assignment->title,
+          'description'     => $assignment->description,
+          'started_at'      => $assignment->started_at,
+          'ended_at'        => $assignment->ended_at,
+          'allow_overtime'  => $assignment->allow_overtime,
+          'classroom_id'    => $assignment->classroom_id,
+          'created_at'      => $assignment->created_at,
+          'updated_at'      => $assignment->updated_at,
         ];
       })
     ], 200);
@@ -53,11 +56,14 @@ class AssignmentController extends Controller
   public function store(Request $request)
   {
     $validator = Validator::make($request->all(), [
-      'title'         => 'required|string|max:255',
-      'description'   => 'nullable|string',
-      'classroom_id'  => 'required|string|exists:classrooms,id',
-      'section_id'    => 'nullable|string|exists:sections,id',
-      'order'         => 'nullable|numeric',
+      'title'           => 'required|string|max:255',
+      'description'     => 'nullable|string',
+      'started_at'      => 'required|date',
+      'ended_at'        => 'required|date',
+      'allow_overtime'  => 'nullable|boolean',
+      'classroom_id'    => 'required|string|exists:classrooms,id',
+      'section_id'      => 'nullable|string|exists:sections,id',
+      'order'           => 'nullable|numeric',
 
       'files'         => 'nullable|array',
       'files.*.name'  => 'nullable|string',
@@ -76,11 +82,14 @@ class AssignmentController extends Controller
 
     DB::transaction(function () use ($request) {
       $assignment = Assignment::create([
-        'title'         => $request->title,
-        'description'   => $request->description,
-        'classroom_id'  => $request->classroom_id,
-        'section_id'    => $request->section_id,
-        'order'         => $request->order,
+        'title'           => $request->title,
+        'description'     => $request->description,
+        'started_at'      => $request->started_at,
+        'ended_at'        => $request->ended_at,
+        'allow_overtime'  => $request->allow_overtime,
+        'classroom_id'    => $request->classroom_id,
+        'section_id'      => $request->section_id,
+        'order'           => $request->order,
       ]);
 
       if ($request->has('files') && is_array($request->files)) {
@@ -131,7 +140,7 @@ class AssignmentController extends Controller
    */
   public function show(Request $request, string $id)
   {
-    $user = $request->user();
+    $user = $request->user()->currentAccessToken()->abilities;
     $assignment = Assignment::with('classroom')->find($id);
 
     if (! $assignment) {
@@ -159,6 +168,9 @@ class AssignmentController extends Controller
         'id'                => $assignment->id,
         'title'             => $assignment->title,
         'description'       => $assignment->description,
+        'started_at'        => $assignment->started_at,
+        'ended_at'          => $assignment->ended_at,
+        'allow_overtime'    => $assignment->allow_overtime,
         'classroom_id'      => $assignment->classroom_id,
         'section_id'        => $assignment->section_id,
         'order'             => $assignment->order,
@@ -185,10 +197,13 @@ class AssignmentController extends Controller
     }
 
     $validator = Validator::make($request->all(), [
-      'title'         => 'required|string|max:255',
-      'description'   => 'nullable|string',
-      'section_id'    => 'nullable|string|exists:sections,id',
-      'order'         => 'nullable|numeric',
+      'title'           => 'required|string|max:255',
+      'description'     => 'nullable|string',
+      'section_id'      => 'nullable|string|exists:sections,id',
+      'order'           => 'nullable|numeric',
+      'started_at'      => 'required|date',
+      'ended_at'        => 'required|date',
+      'allow_overtime'  => 'nullable|boolean',
 
       'files'         => 'nullable|array',
       'files.*.name'  => 'nullable|string',
@@ -210,10 +225,13 @@ class AssignmentController extends Controller
 
     DB::transaction(function () use ($request, $assignment) {
       $assignment->update($request->only([
-        'title'         => $request->title,
-        'description'   => $request->description,
-        'section_id'    => $request->section_id,
-        'order'         => $request->order,
+        'title'           => $request->title,
+        'description'     => $request->description,
+        'started_at'      => $request->started_at,
+        'ended_at'        => $request->ended_at,
+        'allow_overtime'  => $request->allow_overtime,
+        'section_id'      => $request->section_id,
+        'order'           => $request->order,
       ]));
 
       if ($request->has('files') && is_array($request->files)) {

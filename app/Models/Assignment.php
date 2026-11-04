@@ -10,6 +10,9 @@ class Assignment extends Model
   protected $fillable = [
     'title',
     'description',
+    'started_at',
+    'ended_at',
+    'allow_overtime',
     'classroom_id',
     'section_id',
     'order',

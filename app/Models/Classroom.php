@@ -47,4 +47,14 @@ class Classroom extends Model
   {
     return $this->hasMany(Announcement::class);
   }
+
+  public function materials(): HasMany
+  {
+    return $this->hasMany(Material::class);
+  }
+
+  public function assignments(): HasMany
+  {
+    return $this->hasMany(Assignment::class);
+  }
 }

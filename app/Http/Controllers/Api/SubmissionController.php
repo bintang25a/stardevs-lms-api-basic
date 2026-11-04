@@ -41,6 +41,7 @@ class SubmissionController extends Controller
           'answer'        => $submission->answer,
           'support'       => $submission->support,
           'score'         => $submission->score,
+          'submitted'     => $submission->submitted,
           'created_at'    => $submission->created_at,
           'updated_at'    => $submission->updated_at,
         ];
@@ -76,9 +77,14 @@ class SubmissionController extends Controller
     }
 
     DB::transaction(function () use ($request) {
+      $user = $request->user()->currentAccessToken()->abilities;
+
       $submission = Submission::create([
+        'student_name'  => $user->name,
+        'student_id'    => $user->id,
         'answer'        => $request->title,
         'support'       => $request->description,
+        'submitted'     => true,
         'assignment_id' => $request->assignment_id,
         'classroom_id'  => $request->classroom_id,
         'section_id'    => $request->section_id,
@@ -153,9 +159,11 @@ class SubmissionController extends Controller
       'message' => 'Submission retrieved successfully',
       'data'    => [
         'id'                => $submission->id,
-        'title'             => $submission->title,
-        'description'       => $submission->description,
-        'classroom_id'      => $submission->classroom_id,
+        'student_name'      => $submission->student_name,
+        'answer'            => $submission->answer,
+        'support'           => $submission->support,
+        'score'             => $submission->score,
+        'submitted'         => $submission->submitted,
         'section_id'        => $submission->section_id,
         'order'             => $submission->order,
         'classroom'         => $submission->classroom,

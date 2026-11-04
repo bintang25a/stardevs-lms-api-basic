@@ -8,22 +8,38 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  mixed  ...$roles  (Menerima parameter role yang diizinkan)
-     */
-    public function handle(Request $request, Closure $next, ...$roles): Response
-    {
-        // Cek apakah user sudah login dan apakah rolenya sesuai dengan yang diizinkan
-        if (!$request->user() || !in_array($request->user()->role, $roles)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Access denied for your role.',
-            ], 403);
-        }
+  public function handle(Request $request, Closure $next, ...$roles): Response
+  {
+    $user = $request->user();
 
-        return $next($request);
+    if (!$user) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Unauthenticated.',
+      ], 401);
     }
+
+    $token = $user->currentAccessToken();
+
+    $hasAccess = false;
+    foreach ($roles as $role) {
+      if ($token && $token->can('role:' . $role)) {
+        $hasAccess = true;
+        break;
+      }
+    }
+
+    if ($user->role === 'admin' && in_array('admin', $roles)) {
+      $hasAccess = true;
+    }
+
+    if (!$hasAccess) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Unauthorized. Access denied for your active role.',
+      ], 403);
+    }
+
+    return $next($request);
+  }
 }
