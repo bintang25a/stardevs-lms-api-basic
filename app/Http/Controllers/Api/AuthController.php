@@ -123,14 +123,14 @@ class AuthController extends Controller
       $selectedRole = $request->requested_role;
 
       if ($user->role === 'admin') {
-          $activeRole = $selectedRole;
+        $activeRole = $selectedRole;
       } elseif ($user->role === 'asisten' && in_array($selectedRole, ['asisten', 'praktikan'])) {
-          $activeRole = $selectedRole;
+        $activeRole = $selectedRole;
       } elseif ($user->role === 'praktikan' && $selectedRole !== 'praktikan') {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized to switch to this role',
-          ], 403);
+        return response()->json([
+          'success' => false,
+          'message' => 'Unauthorized to switch to this role',
+        ], 403);
       }
     }
 
@@ -147,7 +147,7 @@ class AuthController extends Controller
     return response()->json([
       'success' => true,
       'message' => 'Login successful',
-      'data' => $user,
+      'data' => $userData,
       'access_token' => $token,
       'token_type' => 'Bearer'
     ], 200);
