@@ -14,10 +14,11 @@ return new class extends Migration
     Schema::create('submissions', function (Blueprint $table) {
       $table->id();
       $table->string('student_name');
+      $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
       $table->string('answer');
       $table->text('support')->nullable();
-      $table->decimal('score');
-      $table->foreignId('classroom_id')->constrained('classrooms')->onDelete('cascade');
+      $table->decimal('score')->nullable();
+      $table->boolean('submitted')->default(false);
       $table->foreignId('assignment_id')->constrained()->constrained('assignments')->onDelete('cascade');
       $table->foreignId('section_id')->nullable()->constrained('sections')->onDelete('set null');
       $table->integer('order')->nullable();

@@ -15,6 +15,9 @@ return new class extends Migration
       $table->id();
       $table->string('title');
       $table->text('description')->nullable();
+      $table->dateTime('started_at');
+      $table->dateTime('ended_at');
+      $table->boolean('allow_overtime')->default(false);
       $table->foreignId('classroom_id')->constrained('classrooms')->onDelete('cascade');
       $table->foreignId('section_id')->nullable()->constrained('sections')->onDelete('set null');
       $table->integer('order')->nullable();

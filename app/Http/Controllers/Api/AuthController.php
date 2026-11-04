@@ -88,6 +88,7 @@ class AuthController extends Controller
     $validator = Validator::make($request->all(), [
       'login' => 'required|string',
       'password' => 'required|string',
+      'requested_role' => 'required|in:admin,asisten,praktikan',
     ]);
 
     if ($validator->fails()) {
@@ -116,13 +117,31 @@ class AuthController extends Controller
       ], 401);
     }
 
-    $user->tokens()->delete();
-    $token = $user->createToken('auth_token')->plainTextToken;
+    $activeRole = $user->role;
 
-    $user = [
+    if ($request->filled('requested_role')) {
+      $selectedRole = $request->requested_role;
+
+      if ($user->role === 'admin') {
+          $activeRole = $selectedRole;
+      } elseif ($user->role === 'asisten' && in_array($selectedRole, ['asisten', 'praktikan'])) {
+          $activeRole = $selectedRole;
+      } elseif ($user->role === 'praktikan' && $selectedRole !== 'praktikan') {
+          return response()->json([
+              'success' => false,
+              'message' => 'Unauthorized to switch to this role',
+          ], 403);
+      }
+    }
+
+    $user->tokens()->delete();
+    $token = $user->createToken('auth_token', ['role:' . $activeRole])->plainTextToken;
+
+    $userData = [
       'name' => $user->name,
       'email' => $user->email,
-      'role' => $user->role
+      'role' => $activeRole,
+      'original_role' => $user->role
     ];
 
     return response()->json([

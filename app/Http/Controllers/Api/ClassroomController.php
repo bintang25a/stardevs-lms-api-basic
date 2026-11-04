@@ -14,13 +14,13 @@ class ClassroomController extends Controller
    */
   public function index(Request $request)
   {
-    $user = $request->user();
+    $user = $request->user()->currentAccessToken()->abilities;
     $search = $request->query('search') ?? $request->query('keyword');
     $perPage = $request->query('per_page', 10);
 
     $query = Classroom::withCount([
       'assistants',
-      'students'
+      'students',
     ]);
 
     if ($user->role !== 'admin') {
@@ -104,7 +104,7 @@ class ClassroomController extends Controller
    */
   public function show(string $id)
   {
-    $classroom = Classroom::with(['assistants:id,name', 'sections', 'announcements'])
+    $classroom = Classroom::with(['assistants:id,name', 'sections', 'announcements', 'assignments', 'materials'])
       ->withCount('assistants')
       ->withCount('students')
       ->find($id);
@@ -139,6 +139,32 @@ class ClassroomController extends Controller
         'announcement'  => $announcement->announcement,
         'section_id'    => $announcement->section_id,
         'order'         => $announcement->order,
+        'updated_at'    => $announcement->updated_at,
+        'created_at'    => $announcement->created_at,
+      ];
+    });
+
+    $materials = $classroom->materials->map(function ($material) {
+      return [
+        'id'          => $material->id,
+        'title'       => $material->title,
+        'description' => $material->description,
+        'section_id'  => $material->section_id,
+        'order'       => $material->order,
+        'updated_at'  => $material->updated_at,
+        'created_at'  => $material->created_at,
+      ];
+    });
+
+    $assignments = $classroom->assignments->map(function ($assignment) {
+      return [
+        'id'          => $assignment->id,
+        'title'       => $assignment->title,
+        'description' => $assignment->description,
+        'section_id'  => $assignment->section_id,
+        'order'       => $assignment->order,
+        'started_at'  => $assignment->started_at,
+        'ended_at'    => $assignment->ended_at,
       ];
     });
 
@@ -154,6 +180,8 @@ class ClassroomController extends Controller
         'assistants'        => $assistants,
         'sections'          => $sections,
         'annoucements'      => $announcements,
+        'materials'         => $materials,
+        'assignments'       => $assignments,
         'total_assistants'  => $classroom->assistants_count,
         'total_students'    => $classroom->students_count,
         'created_at'        => $classroom->created_at,
