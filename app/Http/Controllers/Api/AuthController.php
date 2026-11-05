@@ -77,8 +77,8 @@ class AuthController extends Controller
       event(new Verified($user));
     }
 
-    if (env('FRONTEND_LOGIN_PATH')) {
-      return redirect()->to(env('FRONTEND_LOGIN_PATH'));
+    if (env('FRONTEND_LOGIN_URL')) {
+      return redirect()->to(env('FRONTEND_LOGIN_URL'));
     }
 
     return response()->json([
