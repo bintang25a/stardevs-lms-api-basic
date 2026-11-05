@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])->middleware(['signed']);
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])->middleware(['signed'])->name("verification.verify");
 
 Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group(function () {
 
