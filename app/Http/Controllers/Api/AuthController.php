@@ -77,6 +77,10 @@ class AuthController extends Controller
       event(new Verified($user));
     }
 
+    if (env('FRONTEND_LOGIN_PATH')) {
+      return redirect()->to(env('FRONTEND_LOGIN_PATH'));
+    }
+
     return response()->json([
       'success' => true,
       'message' => 'Email successfully verified!'
@@ -111,6 +115,8 @@ class AuthController extends Controller
     }
 
     if (!$user->email_verified_at) {
+      event(new Registered($user));
+
       return response()->json([
         'success' => false,
         'message' => 'Check your email to verifiy account',
@@ -123,14 +129,14 @@ class AuthController extends Controller
       $selectedRole = $request->requested_role;
 
       if ($user->role === 'admin') {
-          $activeRole = $selectedRole;
+        $activeRole = $selectedRole;
       } elseif ($user->role === 'asisten' && in_array($selectedRole, ['asisten', 'praktikan'])) {
-          $activeRole = $selectedRole;
+        $activeRole = $selectedRole;
       } elseif ($user->role === 'praktikan' && $selectedRole !== 'praktikan') {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized to switch to this role',
-          ], 403);
+        return response()->json([
+          'success' => false,
+          'message' => 'Unauthorized to switch to this role',
+        ], 403);
       }
     }
 
@@ -147,7 +153,7 @@ class AuthController extends Controller
     return response()->json([
       'success' => true,
       'message' => 'Login successful',
-      'data' => $user,
+      'data' => $userData,
       'access_token' => $token,
       'token_type' => 'Bearer'
     ], 200);
@@ -158,7 +164,7 @@ class AuthController extends Controller
     return response()->json([
       'success' => true,
       'message' => 'User profile data',
-      'data' => $request->user()
+      'data' => $request->user()->currentAccessToken()->abilities,
     ], 200);
   }
 
