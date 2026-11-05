@@ -14,7 +14,12 @@ class ClassroomController extends Controller
    */
   public function index(Request $request)
   {
-    $user = $request->user()->currentAccessToken()->abilities;
+    $user = $request->user();
+
+    $abilities = $request->user()->currentAccessToken()->abilities;
+    $roleAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'role:'));
+    $tokenRole = $roleAbility ? str_replace('role:', '', $roleAbility) : null;
+
     $search = $request->query('search') ?? $request->query('keyword');
     $perPage = $request->query('per_page', 10);
 
@@ -23,7 +28,7 @@ class ClassroomController extends Controller
       'students',
     ]);
 
-    if ($user->role !== 'admin') {
+    if ($tokenRole !== 'admin') {
       $query->where(function ($q) use ($user) {
         $q->whereHas('assistants', function ($subQuery) use ($user) {
           $subQuery->where('users.id', $user->id);

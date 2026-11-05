@@ -161,10 +161,17 @@ class AuthController extends Controller
 
   public function profile(Request $request)
   {
+    $user = $request->user();
+    $abilities = $request->user()->currentAccessToken()->abilities;
+    $roleAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'role:'));
+    $tokenRole = $roleAbility ? str_replace('role:', '', $roleAbility) : null;
+
+    $user['role'] = $tokenRole;
+
     return response()->json([
       'success' => true,
       'message' => 'User profile data',
-      'data' => $request->user()->currentAccessToken()->abilities,
+      'data' => $user,
     ], 200);
   }
 
