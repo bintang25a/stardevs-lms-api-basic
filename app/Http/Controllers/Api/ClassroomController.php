@@ -127,6 +127,9 @@ class ClassroomController extends Controller
     $classroom = Classroom::with(['assistants:id,name', 'sections', 'announcements', 'assignments', 'materials'])
       ->withCount('assistants')
       ->withCount('students')
+      ->withCount('announcements')
+      ->withCount('assignments')
+      ->withCount('materials')
       ->find($id);
 
     if (! $classroom) {
@@ -204,6 +207,9 @@ class ClassroomController extends Controller
         'assignments'       => $assignments,
         'total_assistants'  => $classroom->assistants_count,
         'total_students'    => $classroom->students_count,
+        'total_announcements' => $classroom->announcements_count,
+        'total_assignments'   => $classroom->assignments_count,
+        'total_materials'     => $classroom->materials_count,
         'created_at'        => $classroom->created_at,
         'updated_at'        => $classroom->updated_at,
       ]

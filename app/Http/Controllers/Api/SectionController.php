@@ -26,6 +26,7 @@ class SectionController extends Controller
       'date'          => 'nullable|date',
       'title'         => 'required|string|max:255',
       'classroom_id'  => 'required|string|exists:classrooms,id',
+      'order'         => 'nullable|numeric',
     ]);
 
     if ($validator->fails()) {
@@ -37,9 +38,10 @@ class SectionController extends Controller
     }
 
     Section::create([
-      'date'        => $request->date,
-      'title'        => $request->title,
-      'classroom_id' => $request->classroom_id,
+      'date'          => $request->date,
+      'title'         => $request->title,
+      'classroom_id'  => $request->classroom_id,
+      'order'         => $request->order,
     ]);
 
     return response()->json([
@@ -73,6 +75,7 @@ class SectionController extends Controller
     $validator = Validator::make($request->all(), [
       'date'          => 'nullable|date',
       'title'         => 'required|string|max:255',
+      'order'         => 'nullable|numeric',
     ]);
 
     if ($validator->fails()) {
@@ -86,6 +89,7 @@ class SectionController extends Controller
     $section->update($request->only([
       'date',
       'title',
+      'order',
     ]));
 
     return response()->json([

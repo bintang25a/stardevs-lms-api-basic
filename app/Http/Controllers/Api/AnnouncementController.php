@@ -55,6 +55,7 @@ class AnnouncementController extends Controller
       'announcement'  => 'required',
       'classroom_id'  => 'required|string|exists:classrooms,id',
       'section_id'    => 'nullable|string|exists:sections,id',
+      'order'         => 'nullable|numeric',
     ]);
 
     if ($validator->fails()) {
@@ -68,8 +69,9 @@ class AnnouncementController extends Controller
     Announcement::create([
       'title'         => $request->title,
       'announcement'  => $request->announcement,
-      'classroom_id' => $request->classroom_id,
-      'section_id' => $request->section_id,
+      'classroom_id'  => $request->classroom_id,
+      'section_id'    => $request->section_id,
+      'order'         => $request->order,
     ]);
 
     return response()->json([
@@ -117,6 +119,7 @@ class AnnouncementController extends Controller
       'title'         => 'required|string|max:255',
       'announcement'  => 'required',
       'section_id'    => 'nullable|string|exists:sections,id',
+      'order'         => 'nullable|numeric',
     ]);
 
     if ($validator->fails()) {
@@ -131,6 +134,7 @@ class AnnouncementController extends Controller
       'title',
       'announcement',
       'section_id',
+      'order'
     ]));
 
     return response()->json([
