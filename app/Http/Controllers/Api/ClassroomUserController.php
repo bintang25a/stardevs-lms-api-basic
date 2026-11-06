@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Classroom;
 use App\Models\ClassroomUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,8 +25,8 @@ class ClassroomUserController extends Controller
   public function store(Request $request)
   {
     $validator = Validator::make($request->all(), [
-      'classroom_code' => 'nullable|string|exists:classrooms,code',
-      'classroom_id'  => 'required|string|exists:classrooms,id',
+      'classroom_code' => 'required|string|exists:classrooms,code',
+      'classroom_id'  => 'nullable|string|exists:classrooms,id',
       'user_id'       => 'required|string|exists:users,id',
       'role'          => 'required|string',
     ]);
@@ -38,17 +39,18 @@ class ClassroomUserController extends Controller
       ], 422);
     }
 
-    $role = $request->classroom_code ? 'student' : $request->role;
+    $classroom = Classroom::firstWhere('code', $request->classroom_code);
 
     ClassroomUser::firstOrCreate([
-      'classroom_id' => $request->classroom_id,
+      'classroom_id' => $request->classroom_id ?? $classroom->id,
       'user_id'      => $request->user_id,
-      'role'         => $role,
+      'role'         => $request->role,
     ]);
 
     return response()->json([
       'success' => true,
       'message' => 'Classroom User created successfully',
+      'data'    => $classroom,
     ], 201);
   }
 

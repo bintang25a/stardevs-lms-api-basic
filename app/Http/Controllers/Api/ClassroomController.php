@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classroom;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,11 +29,17 @@ class ClassroomController extends Controller
       'students',
     ]);
 
-    if ($tokenRole !== 'admin') {
+    if ($tokenRole === 'praktikan') {
+      $query->where(function ($q) use ($user) {
+        $q->whereHas('students', function ($subQuery) use ($user) {
+          $subQuery->where('users.id', $user->id);
+        });
+      });
+    }
+
+    if ($tokenRole === 'asisten') {
       $query->where(function ($q) use ($user) {
         $q->whereHas('assistants', function ($subQuery) use ($user) {
-          $subQuery->where('users.id', $user->id);
-        })->orWhereHas('students', function ($subQuery) use ($user) {
           $subQuery->where('users.id', $user->id);
         });
       });
@@ -76,8 +83,8 @@ class ClassroomController extends Controller
       'code'          => 'required|string|max:50|unique:classrooms,code',
       'description'   => 'nullable|string',
       'schedule'      => 'nullable|date',
-      'assistant_ids' => 'required|array|min:1',
-      'assistant_ids.*' => 'exists:users,id',
+      'assistant_emails'    => 'required|array|min:1',
+      'assistant_emails.*'  => 'required|email|exists:users,email',
     ]);
 
     if ($validator->fails()) {
@@ -95,12 +102,20 @@ class ClassroomController extends Controller
       'schedule'    => $request->schedule,
     ]);
 
-    $classroom->users()->attach($request->assistant_ids, ['role' => 'asisten']);
+    $assistantIds = User::whereIn('email', $request->assistant_emails)->pluck('id');
+
+    $assistantData = [];
+    foreach ($assistantIds as $id) {
+      $assistantData[$id] = ['role' => 'asisten'];
+    }
+
+    $classroom->users()->attach($assistantData);
     $classroom->load('assistants');
 
     return response()->json([
       'success' => true,
       'message' => 'Classroom created successfully',
+      'data' => $classroom,
     ], 201);
   }
 
@@ -234,6 +249,7 @@ class ClassroomController extends Controller
     return response()->json([
       'success' => true,
       'message' => 'Classroom updated successfully',
+      'data'    => $classroom,
     ], 200);
   }
 

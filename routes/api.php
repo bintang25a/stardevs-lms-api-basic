@@ -21,7 +21,7 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
   Route::post('/logout', [AuthController::class, 'logout']);
 
   Route::post('/classrooms/join', [ClassroomUserController::class, 'store']);
-  Route::delete('/classrooms/leave', [ClassroomUserController::class, 'destroy']);
+  Route::post('/classrooms/leave', [ClassroomUserController::class, 'destroy']);
   Route::apiResource('classrooms', ClassroomController::class)->only(['index', 'show']);
   Route::apiResource('announcements', AnnouncementController::class)->only(['show']);
   Route::apiResource('attachments', AttachmentController::class)->only(['show']);
