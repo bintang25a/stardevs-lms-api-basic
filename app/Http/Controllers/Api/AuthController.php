@@ -166,7 +166,12 @@ class AuthController extends Controller
     $roleAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'role:'));
     $tokenRole = $roleAbility ? str_replace('role:', '', $roleAbility) : null;
 
+    $classroomIds = $user->classrooms()
+      ->wherePivot('role', $tokenRole)
+      ->pluck('classrooms.id');
+
     $user['role'] = $tokenRole;
+    $user['classroom_ids'] = $classroomIds;
 
     return response()->json([
       'success' => true,
