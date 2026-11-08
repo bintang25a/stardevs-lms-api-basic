@@ -202,7 +202,7 @@ class ClassroomController extends Controller
         'schedule'          => $classroom->schedule,
         'assistants'        => $assistants,
         'sections'          => $sections,
-        'annoucements'      => $announcements,
+        'announcements'     => $announcements,
         'materials'         => $materials,
         'assignments'       => $assignments,
         'total_assistants'  => $classroom->assistants_count,

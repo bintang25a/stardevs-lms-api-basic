@@ -60,14 +60,14 @@ class AssignmentController extends Controller
       'description'     => 'nullable|string',
       'started_at'      => 'required|date',
       'ended_at'        => 'required|date',
-      'allow_overtime'  => 'nullable|boolean',
+      'allow_overtime'  => 'nullable|string',
       'classroom_id'    => 'required|string|exists:classrooms,id',
       'section_id'      => 'nullable|string|exists:sections,id',
       'order'           => 'nullable|numeric',
 
       'files'         => 'nullable|array',
       'files.*.name'  => 'nullable|string',
-      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
+      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar,txt|max:20480',
       'files.*.url'   => 'nullable|string',
       'files.*.type'  => 'required|string|max:255',
     ]);
@@ -86,18 +86,20 @@ class AssignmentController extends Controller
         'description'     => $request->description,
         'started_at'      => $request->started_at,
         'ended_at'        => $request->ended_at,
-        'allow_overtime'  => $request->allow_overtime,
+        'allow_overtime'  => ($request->allow_overtime === '1'),
         'classroom_id'    => $request->classroom_id,
         'section_id'      => $request->section_id,
         'order'           => $request->order,
       ]);
 
-      if ($request->has('files') && is_array($request->files)) {
-        foreach ($request->files as $item) {
-          $name = $item['name'] ?? null;
-          $file = $item['file'] ?? null;
+      $filesInput = $request->input('files');
+
+      if ($filesInput && is_array($filesInput)) {
+        foreach ($filesInput as $index => $item) {
           $url  = $item['url'] ?? null;
+          $name = $item['name'] ?? null;
           $type = $item['type'] ?? 'assignment';
+          $file = $request->file("files.{$index}.file");
 
           $filePath = null;
           $fileUrl  = null;
@@ -207,7 +209,7 @@ class AssignmentController extends Controller
 
       'files'         => 'nullable|array',
       'files.*.name'  => 'nullable|string',
-      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
+      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar,txt|max:20480',
       'files.*.url'   => 'nullable|string',
       'files.*.type'  => 'required|string|max:255',
 
@@ -234,12 +236,14 @@ class AssignmentController extends Controller
         'order'           => $request->order,
       ]));
 
-      if ($request->has('files') && is_array($request->files)) {
-        foreach ($request->files as $item) {
-          $name = $item['name'] ?? null;
-          $file = $item['file'] ?? null;
+      $filesInput = $request->input('files');
+
+      if ($filesInput && is_array($filesInput)) {
+        foreach ($filesInput as $index => $item) {
           $url  = $item['url'] ?? null;
+          $name = $item['name'] ?? null;
           $type = $item['type'] ?? 'assignment';
+          $file = $request->file("files.{$index}.file");
 
           $filePath = null;
           $fileUrl  = null;

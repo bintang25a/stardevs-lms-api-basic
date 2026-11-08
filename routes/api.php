@@ -41,6 +41,7 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
     Route::apiResource('sections', SectionController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('announcements', AnnouncementController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('materials', MaterialController::class)->only(['store', 'update', 'destroy']);
+    Route::apiResource('assignments', AssignmentController::class)->only(['store', 'update', 'destroy']);
   });
 
   Route::middleware('role:admin,asisten')->group(function () {
