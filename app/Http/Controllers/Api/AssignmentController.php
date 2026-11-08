@@ -67,7 +67,7 @@ class AssignmentController extends Controller
 
       'files'         => 'nullable|array',
       'files.*.name'  => 'nullable|string',
-      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
+      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar,txt|max:20480',
       'files.*.url'   => 'nullable|string',
       'files.*.type'  => 'required|string|max:255',
     ]);
@@ -209,7 +209,7 @@ class AssignmentController extends Controller
 
       'files'         => 'nullable|array',
       'files.*.name'  => 'nullable|string',
-      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
+      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar,txt|max:20480',
       'files.*.url'   => 'nullable|string',
       'files.*.type'  => 'required|string|max:255',
 
