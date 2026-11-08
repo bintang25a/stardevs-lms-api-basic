@@ -54,7 +54,7 @@ class AnnouncementController extends Controller
       'title'         => 'required|string|max:255',
       'announcement'  => 'required',
       'classroom_id'  => 'required|string|exists:classrooms,id',
-      'section_id'    => 'nullable|string|exists:sections,id',
+      'section_id'    => 'nullable|exists:sections,id',
       'order'         => 'nullable|numeric',
     ]);
 
@@ -118,7 +118,7 @@ class AnnouncementController extends Controller
     $validator = Validator::make($request->all(), [
       'title'         => 'required|string|max:255',
       'announcement'  => 'required',
-      'section_id'    => 'nullable|string|exists:sections,id',
+      'section_id'    => 'nullable|exists:sections,id',
       'order'         => 'nullable|numeric',
     ]);
 
