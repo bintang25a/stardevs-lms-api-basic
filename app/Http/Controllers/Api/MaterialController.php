@@ -56,7 +56,7 @@ class MaterialController extends Controller
       'title'         => 'required|string|max:255',
       'description'   => 'nullable|string',
       'classroom_id'  => 'required|string|exists:classrooms,id',
-      'section_id'    => 'nullable|string|exists:sections,id',
+      'section_id'    => 'nullable|exists:sections,id',
       'order'         => 'nullable|numeric',
       'files'         => 'nullable|array',
       'files.*'       => 'file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
@@ -182,7 +182,7 @@ class MaterialController extends Controller
     $validator = Validator::make($request->all(), [
       'title'         => 'required|string|max:255',
       'description'   => 'nullable|string',
-      'section_id'    => 'nullable|string|exists:sections,id',
+      'section_id'    => 'nullable|exists:sections,id',
       'order'         => 'nullable|numeric',
       'files'         => 'nullable|array',
       'files.*'       => 'file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
@@ -201,10 +201,10 @@ class MaterialController extends Controller
 
     DB::transaction(function () use ($request, $material) {
       $material->update($request->only([
-        'title'         => $request->title,
-        'description'   => $request->description,
-        'section_id'    => $request->section_id,
-        'order'         => $request->order,
+        'title',
+        'description',
+        'section_id',
+        'order',
       ]));
 
       $type = 'material';
@@ -215,7 +215,7 @@ class MaterialController extends Controller
 
           $fileName = time() . '_' . str_replace(' ', '_', $originalName);
 
-          $filePath = $file->storeAs($type.'s', $fileName, 'public');
+          $filePath = $file->storeAs($type . 's', $fileName, 'public');
 
           $fileUrl = Storage::url($filePath);
 

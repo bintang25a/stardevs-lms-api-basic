@@ -55,7 +55,20 @@ class SectionController extends Controller
    */
   public function show(string $id)
   {
-    //
+    $section = Section::find($id);
+
+    if (! $section) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Section not found'
+      ], 404);
+    }
+
+    return response()->json([
+      'success' => true,
+      'message' => 'Section retrieved successfully',
+      'data'    => $section,
+    ], 200);
   }
 
   /**

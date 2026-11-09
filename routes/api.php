@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ActionController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AttachmentController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\GlobalSettingController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\SectionController;
 use Illuminate\Support\Facades\Route;
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -23,6 +25,7 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
   Route::post('/classrooms/join', [ClassroomUserController::class, 'store']);
   Route::post('/classrooms/leave', [ClassroomUserController::class, 'destroy']);
   Route::apiResource('classrooms', ClassroomController::class)->only(['index', 'show']);
+  Route::apiResource('sections', SectionController::class)->only(['show']);
   Route::apiResource('announcements', AnnouncementController::class)->only(['show']);
   Route::apiResource('attachments', AttachmentController::class)->only(['show']);
   Route::apiResource('materials', MaterialController::class)->only(['show']);
@@ -42,6 +45,8 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
     Route::apiResource('announcements', AnnouncementController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('materials', MaterialController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('assignments', AssignmentController::class)->only(['store', 'update', 'destroy']);
+    Route::post('/actions/raise-order', [ActionController::class, 'raiseOrder']);
+    Route::post('/actions/lower-order', [ActionController::class, 'lowerOrder']);
   });
 
   Route::middleware('role:admin,asisten')->group(function () {
