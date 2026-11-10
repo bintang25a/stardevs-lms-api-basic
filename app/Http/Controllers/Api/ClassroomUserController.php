@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Classroom;
 use App\Models\ClassroomUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ClassroomUserController extends Controller
 {
@@ -22,7 +22,7 @@ class ClassroomUserController extends Controller
   /**
    * Store a newly created resource in storage.
    */
-  public function store(Request $request)
+  public function join(Request $request)
   {
     $validator = Validator::make($request->all(), [
       'classroom_code' => 'required|string|exists:classrooms,code',
@@ -57,9 +57,47 @@ class ClassroomUserController extends Controller
   /**
    * Display the specified resource.
    */
-  public function show(string $id)
+  public function add(Request $request)
   {
-    //
+    $validator = Validator::make($request->all(), [
+      'classroom_id'  => 'required|string|exists:classrooms,id',
+      'uids'          => 'required|array|min:1',
+      'uids.*'        => 'required|string',
+      'role'          => 'required|string|in:admin,asisten,praktikan',
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Validation Errors',
+        'errors'  => $validator->errors()
+      ], 422);
+    }
+
+    $userIds = User::query()
+      ->whereIn('email', $request->uids)
+      ->orWhereIn('nim', $request->uids)
+      ->pluck('id');
+
+    if ($userIds->isEmpty()) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Users with email/NIM not found.',
+      ], 404);
+    }
+
+    foreach ($userIds as $userId) {
+      ClassroomUser::firstOrCreate([
+        'classroom_id' => $request->classroom_id,
+        'user_id'      => $userId,
+        'role'         => $request->role,
+      ]);
+    }
+
+    return response()->json([
+      'success' => true,
+      'message' => 'Classroom Users created successfully',
+    ], 201);
   }
 
   /**
@@ -73,7 +111,7 @@ class ClassroomUserController extends Controller
   /**
    * Remove the specified resource from storage.
    */
-  public function destroy(Request $request, string $id = null)
+  public function leave(Request $request)
   {
     $validator = Validator::make($request->all(), [
       'classroom_id' => 'required|exists:classrooms,id',

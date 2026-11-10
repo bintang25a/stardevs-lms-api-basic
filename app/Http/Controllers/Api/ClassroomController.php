@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Classroom;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ClassroomController extends Controller
@@ -143,19 +144,39 @@ class ClassroomController extends Controller
     $roleAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'role:'));
     $tokenRole = $roleAbility ? str_replace('role:', '', $roleAbility) : null;
 
-    $assistants = $classroom->assistants->map(function ($assistant) {
+    $assistants = $classroom->assistants->map(function ($assistant) use ($tokenRole) {
+      $base64Photo = null;
+      if ($assistant->photo && Storage::disk('local')->exists($assistant->photo)) {
+        $fileContent = Storage::disk('local')->get($assistant->photo);
+        $mimeType = Storage::disk('local')->mimeType($assistant->photo);
+
+        $base64Photo = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
+      }
+
       return [
         'id'    => $assistant->id,
         'name'  => $assistant->name,
-        'photo' => $assistant->photo,
+        'photo' => $base64Photo,
+        'email' => $tokenRole === 'asisten' ? $assistant->email : null,
+        'phone_number' => $tokenRole === 'asisten' ? $assistant->phone_number : null,
       ];
     });
 
-    $students = $classroom->students->map(function ($student) {
+    $students = $classroom->students->map(function ($student) use ($tokenRole) {
+      $base64Photo = null;
+      if ($student->photo && Storage::disk('local')->exists($student->photo)) {
+        $fileContent = Storage::disk('local')->get($student->photo);
+        $mimeType = Storage::disk('local')->mimeType($student->photo);
+
+        $base64Photo = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
+      }
+
       return [
         'id'    => $student->id,
         'name'  => $student->name,
-        'photo' => $student->photo,
+        'photo' => $base64Photo,
+        'email' => $tokenRole === 'asisten' ? $student->email : null,
+        'phone_number' => $tokenRole === 'asisten' ? $student->phone_number : null,
       ];
     });
 
