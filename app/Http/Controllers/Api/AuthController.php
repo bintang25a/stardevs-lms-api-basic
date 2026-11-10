@@ -8,6 +8,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -170,13 +172,71 @@ class AuthController extends Controller
       ->wherePivot('role', $tokenRole)
       ->pluck('classrooms.id');
 
+    $base64Photo = null;
+    if ($user->photo && Storage::disk('local')->exists($user->photo)) {
+      $fileContent = Storage::disk('local')->get($user->photo);
+      $mimeType = Storage::disk('local')->mimeType($user->photo);
+
+      $base64Photo = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
+    }
+
     $user['role'] = $tokenRole;
     $user['classroom_ids'] = $classroomIds;
+    $user['photo'] = $base64Photo;
 
     return response()->json([
       'success' => true,
       'message' => 'User profile data',
       'data' => $user,
+    ], 200);
+  }
+
+  public function updateProfile(Request $request)
+  {
+    $user = $request->user();
+
+    if (! $user) {
+      return response()->json([
+        'success' => false,
+        'message' => 'User not found'
+      ], 404);
+    }
+
+    $validator = Validator::make($request->all(), [
+      'name'         => 'required|string|max:255',
+      'nim'          => 'required|string|unique:users,nim,' . $user->id,
+      'phone_number' => 'nullable|string|unique:users,phone_number,' . $user->id,
+      'email'        => 'nullable|email|unique:users,email,' . $user->id,
+      'role'         => 'nullable|in:admin,asisten,praktikan',
+      'photo'        => 'nullable|file|extensions:jpg,jpeg,png,webp|max:1024'
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Validation Errors',
+        'errors'  => $validator->errors()
+      ], 422);
+    }
+
+    $dataToUpdate = $request->only(['name', 'nim', 'email', 'role']);
+
+    if ($request->hasFile('photo')) {
+      if ($user->photo && Storage::disk('local')->exists($user->photo)) {
+        Storage::disk('local')->delete($user->photo);
+      }
+
+      $photoPath = $request->file('photo')->store('profiles', 'local');
+
+      $dataToUpdate['photo'] = $photoPath;
+    }
+
+    $user->update($dataToUpdate);
+
+    return response()->json([
+      'success' => true,
+      'message' => 'Profile updated successfully',
+      'data'    => $user
     ], 200);
   }
 

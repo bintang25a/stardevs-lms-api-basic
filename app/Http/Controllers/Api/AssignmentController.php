@@ -142,7 +142,10 @@ class AssignmentController extends Controller
    */
   public function show(Request $request, string $id)
   {
-    $user = $request->user()->currentAccessToken()->abilities;
+    $abilities = $request->user()->currentAccessToken()->abilities;
+    $roleAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'role:'));
+    $tokenRole = $roleAbility ? str_replace('role:', '', $roleAbility) : null;
+
     $assignment = Assignment::with('classroom')->find($id);
 
     if (! $assignment) {
@@ -152,15 +155,17 @@ class AssignmentController extends Controller
       ], 404);
     }
 
-    if ($user->role === 'praktikan') {
-      $type = ['assignments', 'testcases'];
+    $type = ['assignment'];
+
+    if ($tokenRole === 'praktikan') {
+      $type = ['assignment', 'testcase'];
     } else {
-      $type = ['assignments', 'testcases', 'answerkeys'];
+      $type = ['assignment', 'testcase', 'answerkey'];
     }
 
     $files = Attachment::where('class_id', $id)
       ->where('class_model', 'App\Models\Assignment')
-      ->where('type', $type)
+      ->whereIn('type', $type)
       ->get();
 
     return response()->json([
@@ -227,13 +232,13 @@ class AssignmentController extends Controller
 
     DB::transaction(function () use ($request, $assignment) {
       $assignment->update($request->only([
-        'title'           => $request->title,
-        'description'     => $request->description,
-        'started_at'      => $request->started_at,
-        'ended_at'        => $request->ended_at,
-        'allow_overtime'  => $request->allow_overtime,
-        'section_id'      => $request->section_id,
-        'order'           => $request->order,
+        'title',
+        'description',
+        'started_at',
+        'ended_at',
+        'allow_overtime',
+        'section_id',
+        'order',
       ]));
 
       $filesInput = $request->input('files');

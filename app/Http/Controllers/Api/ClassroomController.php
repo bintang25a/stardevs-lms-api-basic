@@ -122,9 +122,9 @@ class ClassroomController extends Controller
   /**
    * Display the specified resource.
    */
-  public function show(string $id)
+  public function show(Request $request, string $id)
   {
-    $classroom = Classroom::with(['assistants:id,name', 'sections', 'announcements', 'assignments', 'materials'])
+    $classroom = Classroom::with(['assistants', 'students', 'sections', 'announcements', 'assignments', 'materials'])
       ->withCount('assistants')
       ->withCount('students')
       ->withCount('announcements')
@@ -139,10 +139,23 @@ class ClassroomController extends Controller
       ], 404);
     }
 
+    $abilities = $request->user()->currentAccessToken()->abilities;
+    $roleAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'role:'));
+    $tokenRole = $roleAbility ? str_replace('role:', '', $roleAbility) : null;
+
     $assistants = $classroom->assistants->map(function ($assistant) {
       return [
         'id'    => $assistant->id,
         'name'  => $assistant->name,
+        'photo' => $assistant->photo,
+      ];
+    });
+
+    $students = $classroom->students->map(function ($student) {
+      return [
+        'id'    => $student->id,
+        'name'  => $student->name,
+        'photo' => $student->photo,
       ];
     });
 
@@ -201,6 +214,7 @@ class ClassroomController extends Controller
         'description'       => $classroom->description,
         'schedule'          => $classroom->schedule,
         'assistants'        => $assistants,
+        'students'          => $students,
         'sections'          => $sections,
         'announcements'     => $announcements,
         'materials'         => $materials,

@@ -21,6 +21,7 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
 
   Route::get('/user', [AuthController::class, 'profile']);
   Route::post('/logout', [AuthController::class, 'logout']);
+  Route::post('/update-user', [AuthController::class, 'updateProfile']);
 
   Route::post('/classrooms/join', [ClassroomUserController::class, 'store']);
   Route::post('/classrooms/leave', [ClassroomUserController::class, 'destroy']);
