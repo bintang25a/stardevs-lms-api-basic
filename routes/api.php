@@ -23,14 +23,15 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
   Route::post('/logout', [AuthController::class, 'logout']);
   Route::post('/update-user', [AuthController::class, 'updateProfile']);
 
-  Route::post('/classrooms/join', [ClassroomUserController::class, 'store']);
-  Route::post('/classrooms/leave', [ClassroomUserController::class, 'destroy']);
+  Route::post('/classrooms-join', [ClassroomUserController::class, 'join']);
+  Route::post('/classrooms-leave', [ClassroomUserController::class, 'leave']);
   Route::apiResource('classrooms', ClassroomController::class)->only(['index', 'show']);
   Route::apiResource('sections', SectionController::class)->only(['show']);
   Route::apiResource('announcements', AnnouncementController::class)->only(['show']);
   Route::apiResource('attachments', AttachmentController::class)->only(['show']);
   Route::apiResource('materials', MaterialController::class)->only(['show']);
   Route::apiResource('assignments', AssignmentController::class)->only(['show']);
+  Route::get('/actions/file-download/{id}', [ActionController::class, 'fileDownload']);
 
   Route::middleware('role:admin')->group(function () {
     Route::apiResource('global-settings', GlobalSettingController::class);
@@ -51,6 +52,7 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
   });
 
   Route::middleware('role:admin,asisten')->group(function () {
+    Route::post('/classrooms-add', [ClassroomUserController::class, 'add']);
     Route::apiResource('classrooms', ClassroomController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('attachments', AttachmentController::class)->only(['destroy']);
   });

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attachment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -203,5 +205,19 @@ class ActionController extends Controller
       'message' => 'Order lowered successfully',
       'data'    => $classroomData,
     ], 200);
+  }
+
+  public function fileDownload(string $id)
+  {
+    $attachment = Attachment::findOrFail($id);
+
+    if (!Storage::disk('public')->exists($attachment->file_path)) {
+      return response()->json([
+        'success' => false,
+        'message' => 'File fisik tidak ditemukan di server.'
+      ], 404);
+    }
+
+    return Storage::disk('public')->download($attachment->file_path, $attachment->file_name);
   }
 }
