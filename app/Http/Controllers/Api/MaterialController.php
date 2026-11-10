@@ -58,10 +58,11 @@ class MaterialController extends Controller
       'classroom_id'  => 'required|string|exists:classrooms,id',
       'section_id'    => 'nullable|exists:sections,id',
       'order'         => 'nullable|numeric',
+
       'files'         => 'nullable|array',
-      'files.*'       => 'file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
-      'files_url'     => 'nullable|array',
-      'files_url.*'   => 'string',
+      'files.*.name'  => 'nullable|string',
+      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar,txt|max:20480',
+      'files.*.url'   => 'nullable|string',
     ]);
 
     if ($validator->fails()) {
@@ -82,38 +83,36 @@ class MaterialController extends Controller
       ]);
 
       $type = 'material';
+      $filesInput = $request->input('files');
 
-      if ($request->hasFile('files')) {
-        foreach ($request->file('files') as $file) {
-          $originalName = $file->getClientOriginalName();
+      if ($filesInput && is_array($filesInput)) {
+        foreach ($filesInput as $index => $item) {
+          $url  = $item['url'] ?? null;
+          $name = $item['name'] ?? null;
+          $file = $request->file("files.{$index}.file");
 
-          $fileName = time() . '_' . str_replace(' ', '_', $originalName);
+          $filePath = null;
+          $fileUrl  = null;
+          $originalName = null;
 
-          $filePath = $file->storeAs($type . 's', $fileName, 'public');
+          if ($file && $file->isValid()) {
+            $originalName = $file->getClientOriginalName();
+            $fileName = time() . '_' . str_replace(' ', '_', $originalName);
 
-          $fileUrl = Storage::url($filePath);
+            $filePath = $file->storeAs($type . 's', $fileName, 'public');
+            $fileUrl  = Storage::url($filePath);
+
+            $name = $name ? $name : $originalName;
+          } else if ($url) {
+            $parsedUrl = parse_url($url, PHP_URL_PATH);
+            $name = $parsedUrl ? basename($parsedUrl) : 'External Link';
+            $fileUrl = $url;
+          }
 
           Attachment::create([
-            'file_name'   => $originalName,
+            'file_name'   => $name,
             'file_path'   => $filePath,
-            'file_url'    => $fileUrl,
-            'class_model' => 'App\Models\Material',
-            'class_id'    => $material->id,
-            'type'        => $type,
-          ]);
-        }
-      }
-
-      if ($request->has('files_url') && is_array($request->files_url)) {
-        foreach ($request->files_url as $url) {
-
-          $parsedUrl = parse_url($url, PHP_URL_PATH);
-          $fileNameFromUrl = $parsedUrl ? basename($parsedUrl) : 'External Link';
-
-          Attachment::create([
-            'file_name'   => $fileNameFromUrl,
-            'file_path'   => null,
-            'file_url'    => $url,
+            'file_url'    => $fileUrl ?? $url,
             'class_model' => 'App\Models\Material',
             'class_id'    => $material->id,
             'type'        => $type,
@@ -184,9 +183,11 @@ class MaterialController extends Controller
       'description'   => 'nullable|string',
       'section_id'    => 'nullable|exists:sections,id',
       'order'         => 'nullable|numeric',
+
       'files'         => 'nullable|array',
-      'files.*'       => 'file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
-      'files_url'     => 'nullable|string',
+      'files.*.name'  => 'nullable|string',
+      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar,txt|max:20480',
+      'files.*.url'   => 'nullable|string',
       'files_remove_ids'    => 'nullable|array',
       'files_remove_ids.*'  => 'string|exists:attachments,id',
     ]);
@@ -208,38 +209,36 @@ class MaterialController extends Controller
       ]));
 
       $type = 'material';
+      $filesInput = $request->input('files');
 
-      if ($request->hasFile('files')) {
-        foreach ($request->file('files') as $file) {
-          $originalName = $file->getClientOriginalName();
+      if ($filesInput && is_array($filesInput)) {
+        foreach ($filesInput as $index => $item) {
+          $url  = $item['url'] ?? null;
+          $name = $item['name'] ?? null;
+          $file = $request->file("files.{$index}.file");
 
-          $fileName = time() . '_' . str_replace(' ', '_', $originalName);
+          $filePath = null;
+          $fileUrl  = null;
+          $originalName = null;
 
-          $filePath = $file->storeAs($type . 's', $fileName, 'public');
+          if ($file && $file->isValid()) {
+            $originalName = $file->getClientOriginalName();
+            $fileName = time() . '_' . str_replace(' ', '_', $originalName);
 
-          $fileUrl = Storage::url($filePath);
+            $filePath = $file->storeAs($type . 's', $fileName, 'public');
+            $fileUrl  = Storage::url($filePath);
+
+            $name = $name ? $name : $originalName;
+          } else if ($url) {
+            $parsedUrl = parse_url($url, PHP_URL_PATH);
+            $name = $parsedUrl ? basename($parsedUrl) : 'External Link';
+            $fileUrl = $url;
+          }
 
           Attachment::create([
-            'file_name'   => $originalName,
+            'file_name'   => $name,
             'file_path'   => $filePath,
-            'file_url'    => $fileUrl,
-            'class_model' => 'App\Models\Material',
-            'class_id'    => $material->id,
-            'type'        => $type,
-          ]);
-        }
-      }
-
-      if ($request->has('files_url') && is_array($request->files_url)) {
-        foreach ($request->files_url as $url) {
-
-          $parsedUrl = parse_url($url, PHP_URL_PATH);
-          $fileNameFromUrl = $parsedUrl ? basename($parsedUrl) : 'External Link';
-
-          Attachment::create([
-            'file_name'   => $fileNameFromUrl,
-            'file_path'   => null,
-            'file_url'    => $url,
+            'file_url'    => $fileUrl ?? $url,
             'class_model' => 'App\Models\Material',
             'class_id'    => $material->id,
             'type'        => $type,
