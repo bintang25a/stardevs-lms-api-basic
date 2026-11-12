@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attachment;
 use App\Models\Classroom;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -201,7 +202,10 @@ class ClassroomController extends Controller
       ];
     });
 
-    $materials = $classroom->materials->map(function ($material) {
+    $classId = [];
+    $materials = $classroom->materials->map(function ($material) use (&$classId) {
+      $classId[] = $material->id;
+
       return [
         'id'          => $material->id,
         'title'       => $material->title,
@@ -213,7 +217,9 @@ class ClassroomController extends Controller
       ];
     });
 
-    $assignments = $classroom->assignments->map(function ($assignment) {
+    $assignments = $classroom->assignments->map(function ($assignment) use (&$classId) {
+      $classId[] = $assignment->id;
+
       return [
         'id'          => $assignment->id,
         'title'       => $assignment->title,
@@ -222,8 +228,19 @@ class ClassroomController extends Controller
         'order'       => $assignment->order,
         'started_at'  => $assignment->started_at,
         'ended_at'    => $assignment->ended_at,
+        'updated_at'  => $assignment->updated_at,
+        'created_at'  => $assignment->created_at,
       ];
     });
+
+    $type = [
+      'asisten' => ['material', 'assignment', 'testcase', 'answerkey'],
+      'praktikan' => ['material', 'assignment', 'testcase'],
+    ];
+
+    $files = Attachment::whereIn('class_id', $classId)
+      ->whereIn('type', $type[$tokenRole])
+      ->get();
 
     return response()->json([
       'success' => true,
@@ -240,6 +257,7 @@ class ClassroomController extends Controller
         'announcements'     => $announcements,
         'materials'         => $materials,
         'assignments'       => $assignments,
+        'files'             => $files,
         'total_assistants'  => $classroom->assistants_count,
         'total_students'    => $classroom->students_count,
         'total_announcements' => $classroom->announcements_count,
