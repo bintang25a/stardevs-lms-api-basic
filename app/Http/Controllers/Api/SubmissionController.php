@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
 use App\Models\Attachment;
 use App\Models\Submission;
 use Illuminate\Http\Request;
@@ -59,8 +60,7 @@ class SubmissionController extends Controller
       'support'       => 'nullable|string',
       'classroom_id'  => 'required|string|exists:classrooms,id',
       'assignment_id' => 'required|string|exists:assignments,id',
-      'section_id'    => 'nullable|string|exists:sections,id',
-      'order'         => 'nullable|numeric',
+      'submitted_at'  => 'required|date',
 
       'files'         => 'nullable|array|min:1',
       'files.*.name'  => 'nullable|string',
@@ -76,6 +76,16 @@ class SubmissionController extends Controller
       ], 422);
     }
 
+    $submittedAt = $request->submitted_at;
+    $endedAt = Assignment::find($request->assignment_id)?->ended_at;
+
+    if ($submittedAt > $endedAt) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Cannot submit, Too Late',
+      ], 403);
+    }
+
     DB::transaction(function () use ($request) {
       $user = $request->user()->currentAccessToken()->abilities;
 
@@ -87,17 +97,16 @@ class SubmissionController extends Controller
         'submitted'     => true,
         'assignment_id' => $request->assignment_id,
         'classroom_id'  => $request->classroom_id,
-        'section_id'    => $request->section_id,
-        'order'         => $request->order,
       ]);
 
       $type = 'submission';
+      $filesInput = $request->input('files');
 
-      if ($request->has('files') && is_array($request->files)) {
-        foreach ($request->files as $item) {
-          $name = $item['name'] ?? null;
-          $file = $item['file'] ?? null;
+      if ($filesInput && is_array($filesInput)) {
+        foreach ($filesInput as $index => $item) {
           $url  = $item['url'] ?? null;
+          $name = $item['name'] ?? null;
+          $file = $request->file("files.{$index}.file");
 
           $filePath = null;
           $fileUrl  = null;
@@ -180,7 +189,7 @@ class SubmissionController extends Controller
    */
   public function update(Request $request, string $id)
   {
-    $submission = Submission::find($id);
+    $submission = Submission::with('assignment')->find($id);
 
     if (! $submission) {
       return response()->json([
@@ -192,8 +201,7 @@ class SubmissionController extends Controller
     $validator = Validator::make($request->all(), [
       'answer'        => 'nullable|string',
       'support'       => 'nullable|string',
-      'section_id'    => 'nullable|string|exists:sections,id',
-      'order'         => 'nullable|numeric',
+      'submitted_at'  => 'required|date',
 
       'files'         => 'nullable|array|min:1',
       'files.*.name'  => 'nullable|string',
@@ -209,6 +217,16 @@ class SubmissionController extends Controller
         'message' => 'Validation Errors',
         'errors'  => $validator->errors()
       ], 422);
+    }
+
+    $submittedAt = $request->submitted_at;
+    $endedAt = $submission->assignment->ended_at;
+
+    if ($submittedAt > $endedAt) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Cannot update, Too Late',
+      ], 403);
     }
 
     DB::transaction(function () use ($request, $submission) {
