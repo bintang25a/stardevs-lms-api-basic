@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ClassroomUserController;
 use App\Http\Controllers\Api\GlobalSettingController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\SectionController;
+use App\Http\Controllers\Api\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -30,6 +31,7 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
   Route::apiResource('attachments', AttachmentController::class)->only(['show']);
   Route::apiResource('materials', MaterialController::class)->only(['show']);
   Route::apiResource('assignments', AssignmentController::class)->only(['show']);
+  Route::apiResource('submissions', SubmissionController::class)->only(['index', 'show']);
   Route::get('/actions/file-download/{id}', [ActionController::class, 'fileDownload']);
 
   Route::middleware('role:admin')->group(function () {
@@ -54,6 +56,10 @@ Route::middleware(['auth:sanctum', 'verified', 'throttle:profile-limit'])->group
     Route::post('/classrooms-add', [ClassroomUserController::class, 'add']);
     Route::apiResource('classrooms', ClassroomController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('attachments', AttachmentController::class)->only(['destroy']);
+  });
+
+  Route::middleware('role:praktikan')->group(function () {
+    Route::apiResource('submissions', SubmissionController::class)->only(['store', 'update', 'destroy']);
   });
 });
 
