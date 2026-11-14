@@ -126,7 +126,7 @@ class ClassroomController extends Controller
    */
   public function show(Request $request, string $id)
   {
-    $classroom = Classroom::with(['assistants', 'students', 'sections', 'announcements', 'assignments', 'materials'])
+    $classroom = Classroom::with(['assistants', 'students', 'sections', 'announcements', 'assignments.submissions', 'materials'])
       ->withCount('assistants')
       ->withCount('students')
       ->withCount('announcements')
@@ -226,6 +226,7 @@ class ClassroomController extends Controller
         'description' => $assignment->description,
         'section_id'  => $assignment->section_id,
         'order'       => $assignment->order,
+        'submissions' => $assignment->submissions,
         'started_at'  => $assignment->started_at,
         'ended_at'    => $assignment->ended_at,
         'updated_at'  => $assignment->updated_at,

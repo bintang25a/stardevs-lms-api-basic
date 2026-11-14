@@ -57,14 +57,12 @@ class SubmissionController extends Controller
   {
     $validator = Validator::make($request->all(), [
       'answer'        => 'nullable|string',
-      'support'       => 'nullable|string',
-      'classroom_id'  => 'required|string|exists:classrooms,id',
       'assignment_id' => 'required|string|exists:assignments,id',
       'submitted_at'  => 'required|date',
 
       'files'         => 'nullable|array|min:1',
       'files.*.name'  => 'nullable|string',
-      'files.*.type'   => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
+      'files.*.file'  => 'nullable|file|extensions:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,c,cpp,java,py,ipynb,js,zip,rar|max:20480',
       'files.*.url'   => 'nullable|string',
     ]);
 
@@ -76,8 +74,15 @@ class SubmissionController extends Controller
       ], 422);
     }
 
-    $submittedAt = $request->submitted_at;
     $endedAt = Assignment::find($request->assignment_id)?->ended_at;
+    $submittedAtClient = $request->submitted_at;
+    $serverTime = now();
+
+    if (abs($serverTime->diffInSeconds($submittedAtClient)) > 60) {
+      $submittedAt = $serverTime;
+    } else {
+      $submittedAt = $submittedAtClient;
+    }
 
     if ($submittedAt > $endedAt) {
       return response()->json([
@@ -86,17 +91,16 @@ class SubmissionController extends Controller
       ], 403);
     }
 
-    DB::transaction(function () use ($request) {
-      $user = $request->user()->currentAccessToken()->abilities;
+    DB::transaction(function () use ($request, $submittedAt) {
+      $user = $request->user();
 
       $submission = Submission::create([
         'student_name'  => $user->name,
         'student_id'    => $user->id,
-        'answer'        => $request->title,
-        'support'       => $request->description,
+        'answer'        => $request->answer,
+        'submitted_at'  => $request->submitted_at,
         'submitted'     => true,
         'assignment_id' => $request->assignment_id,
-        'classroom_id'  => $request->classroom_id,
       ]);
 
       $type = 'submission';
@@ -200,7 +204,6 @@ class SubmissionController extends Controller
 
     $validator = Validator::make($request->all(), [
       'answer'        => 'nullable|string',
-      'support'       => 'nullable|string',
       'submitted_at'  => 'required|date',
 
       'files'         => 'nullable|array|min:1',
@@ -219,8 +222,15 @@ class SubmissionController extends Controller
       ], 422);
     }
 
-    $submittedAt = $request->submitted_at;
     $endedAt = $submission->assignment->ended_at;
+    $submittedAtClient = $request->submitted_at;
+    $serverTime = now();
+
+    if (abs($serverTime->diffInSeconds($submittedAtClient)) > 60) {
+      $submittedAt = $serverTime;
+    } else {
+      $submittedAt = $submittedAtClient;
+    }
 
     if ($submittedAt > $endedAt) {
       return response()->json([
@@ -232,9 +242,6 @@ class SubmissionController extends Controller
     DB::transaction(function () use ($request, $submission) {
       $submission->update($request->only([
         'answer'      => $request->answer,
-        'support'     => $request->support,
-        'section_id'  => $request->section_id,
-        'order'       => $request->order,
       ]));
 
       $type = 'submission';
