@@ -26,10 +26,11 @@ class ClassroomController extends Controller
     $search = $request->query('search') ?? $request->query('keyword');
     $perPage = $request->query('per_page', 10);
 
-    $query = Classroom::withCount([
-      'assistants',
-      'students',
-    ]);
+    $query = Classroom::with('assignments')
+      ->withCount([
+        'assistants',
+        'students',
+      ]);
 
     if ($tokenRole === 'praktikan') {
       $query->where(function ($q) use ($user) {
@@ -60,16 +61,24 @@ class ClassroomController extends Controller
       'success' => true,
       'message' => 'Classrooms retrieved successfully',
       'data'    => $classrooms->through(function ($classroom) {
+        $assignments = $classroom->assignments->map(function ($assignment) {
+          return [
+            'id'    => $assignment->id,
+            'title' => $assignment->title,
+          ];
+        });
+
         return [
-          'id'               => $classroom->id,
-          'name'             => $classroom->name,
-          'code'             => $classroom->code,
-          'description'      => $classroom->description,
-          'schedule'         => $classroom->schedule,
-          'total_assistants' => $classroom->assistants_count,
-          'total_students'   => $classroom->students_count,
-          'created_at'       => $classroom->created_at,
-          'updated_at'       => $classroom->updated_at,
+          'id'                => $classroom->id,
+          'name'              => $classroom->name,
+          'code'              => $classroom->code,
+          'description'       => $classroom->description,
+          'schedule'          => $classroom->schedule,
+          'assignments'       => $assignments,
+          'total_assistants'  => $classroom->assistants_count,
+          'total_students'    => $classroom->students_count,
+          'created_at'        => $classroom->created_at,
+          'updated_at'        => $classroom->updated_at,
         ];
       })
     ], 200);
